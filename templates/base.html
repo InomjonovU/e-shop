@@ -103,12 +103,12 @@
                 <li class="nav-item">
                   <a href="#" class="nav-link">
                     <i class="bx bx-user"></i>
-                    <span class="d-none d-md-inline-block">John Doe</span>
+                    <span class="d-none d-md-inline-block">{{user.username}}</span>
                   </a>
                 </li>
                 <!-- Log out -->
                 <li class="nav-item">
-                  <a href="#" class="nav-link">
+                  <a href="{% url 'logout' %}" class="nav-link">
                     <i class="bx bx-log-out"></i>
                   </a>
                 </li>

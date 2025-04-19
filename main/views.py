@@ -34,9 +34,9 @@ def login(request):
     return render(request, 'login.html', {'error': 'Invalid username or password!'})
 
 @login_required(login_url='login')
-def logout(request):
+def logout_view(request):
     logout(request)
-    return render(request, 'login.html')
+    return redirect('login')
 
 @login_required(login_url='login')
 def add_product(request):
@@ -117,3 +117,5 @@ def movement_filter(request):
         date = request.GET.get('date')
         product_id = request.GET.get('product_id')
 
+def base(request):
+    return render(request, 'base.html', {'user': request.user})
