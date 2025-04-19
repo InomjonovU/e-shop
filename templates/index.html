@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+
+    <!-- Umumiy mahsulotlar -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-primary mb-1">Umumiy mahsulotlar</h6>
+            <h3 class="fw-bold mb-0">{{ total_products }}</h3>
+          </div>
+          <div class="avatar bg-primary text-white rounded-circle p-3 d-flex align-items-center justify-content-center">
+            <i class="bx bx-package fs-3"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Umumiy kirim -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-success mb-1">Umumiy kirimlar soni</h6>
+            <h3 class="fw-bold mb-0">{{ total_enter }}</h3>
+          </div>
+          <div class="avatar bg-success text-white rounded-circle p-3 d-flex align-items-center justify-content-center">
+            <i class="bx bx-log-in-circle fs-3"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Umumiy chiqim -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-danger mb-1">Umumiy chiqimlar soni</h6>
+            <h3 class="fw-bold mb-0">{{ total_out }}</h3>
+          </div>
+          <div class="avatar bg-danger text-white rounded-circle p-3 d-flex align-items-center justify-content-center">
+            <i class="bx bx-log-out-circle fs-3"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}

@@ -1,0 +1,62 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="mb-3">
+      {% if success %}
+        <div class="alert alert-success" role="alert">
+          <p>Mahsulot muvaffaqiyatli yangilandi!</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Mahsulotni tahrirlash</h5>
+        <a href="{% url 'delete_product' product.id %}" class="btn btn-danger">Mahsulotni o'chirish <i class="bx bx-trash"></i></a>
+        <a href="{% url 'products' %}" class="btn btn-secondary">Orqaga</a>
+      </div>
+
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label" for="name">Mahsulot nomi</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="description">Tavsif</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required>{{ product.description }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="category">Kategoriya</label>
+            <select class="form-select" id="category" name="category" required>
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>
+                  {{ category.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="price">Narxi</label>
+            <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ product.price }}" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="stock">Soni</label>
+            <input type="number" class="form-control" id="stock" name="quantity" value="{{ product.quantity }}" readonly />
+          </div>
+
+          <button type="submit" class="btn btn-primary">Yangilash</button>
+        </form>
+      </div>
+    </div>
+
+{% endblock %}
+

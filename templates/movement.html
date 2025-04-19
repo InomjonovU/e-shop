@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Header va Add Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3>Kirim Harakatlari</h3>
+      <a href="{% url 'add_movement' %}" class="btn btn-primary">+ Kirim / Chiqim qo'shish</a>
+    </div>
+
+    <!-- Filter form -->
+    <div class="card mb-4">
+      <div class="card-header">Filter</div>
+      <div class="card-body">
+        <form method="GET" class="row g-3" action="{% url 'movement_filter' %}">
+          <div class="col-md-3">
+            <input type="text" name="search" class="form-control" placeholder="Mahsulot nomi bo‘yicha qidiruv...">
+          </div>
+          <div class="col-md-2">
+            <select name="type" class="form-select">
+              <option value="0">Kirim</option>
+              <option value="1">Chiqim</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <input type="date" name="date" class="form-control">
+          </div>
+          <div class="col-md-2">
+            <input type="number" name="product_id" class="form-control" placeholder="Mahsulot ID">
+          </div>
+          <div class="col-md-1">
+            <button type="submit" class="btn btn-secondary w-100">OK</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Movements Table -->
+    <div class="card">
+      <div class="card-header">Kirim / Chiqim Ro'yxati</div>
+      <div class="card-body">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Mahsulot Nomi</th>
+              <th>Soni</th>
+              <th>Turi</th>
+              <th>Sana</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for movement in movements %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ movement.product.name }}</td>
+              <td>{{ movement.quantity }}</td>
+              <td>
+                {% if movement.type == 'Kirim' %}
+                  <span class="badge bg-success">Kirim</span>
+                {% else %}
+                  <span class="badge bg-danger">Chiqim</span>
+                {% endif %}
+              </td>
+              <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center">Hech qanday harakat topilmadi.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+{% endblock content %}

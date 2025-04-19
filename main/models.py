@@ -6,6 +6,7 @@ class Product(models.Model):
     description = models.TextField()
     quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -15,10 +16,18 @@ class Product(models.Model):
         verbose_name_plural = 'Products'
         ordering = ['-created_at']
 
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
 class Enter(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    tpye = 'enter'
 
     class Meta:
         verbose_name = 'Enter'
@@ -37,6 +46,7 @@ class Out(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    tpye = 'out'
 
     class Meta:
         verbose_name = 'Out'

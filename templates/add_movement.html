@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0">Yangi harakat qo'shish</h5>
+    </div>
+    <div class="card-body">
+
+      {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+          {{ error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Yopish"></button>
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'add_movement' %}">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="product" class="form-label">Mahsulot</label>
+          <select name="product" id="product" class="form-select">
+            {% for product in products %}
+              <option value="{{ product.id }}">{{ product.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="movement_type" class="form-label">Harakat turi</label>
+          <select name="movement_type" id="movement_type" class="form-select">
+            <option value="1">Kirim</option>
+            <option value="0">Chiqim</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Miqdori</label>
+          <input type="number" name="quantity" id="quantity" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Saqlash</button>
+        <a href="{% url 'movement' %}" class="btn btn-secondary">Bekor qilish</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
