@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+
+  <!-- Header va +Yangi Kirim Button (modal ochadi) -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Kirimlar</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEnterModal">
+      + Yangi Kirim
+    </button>
+  </div>
+
+<div class="card mb-4">
+    <div class="card-header">Filter</div>
+    <div class="card-body">
+      <form method="GET" class="row g-3" action="{% url 'filter_enter'%}">
+        <div class="col-md-6">
+          <input type="text" name="search" class="form-control" placeholder="Tavsif orqali qidiruv..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-2">
+          <input type="date" name="start_date" class="form-control" value="{{ request.GET.date }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="end_date" class="form-control" value="{{ request.GET.date }}">
+          </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-secondary w-100">Qidirish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Kirimlar jadvali -->
+  <div class="card">
+    <div class="card-header">Kirimlar Ro‘yxati</div>
+    <div class="card-body">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tavsif</th>
+            <th>Sana</th>
+            <th>Amallar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enter in enters %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ enter.description | truncatechars:50 }}</td>
+            <td>{{ enter.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+              <a href="{% url 'enter_item' enter.id %}" class="btn btn-sm btn-info">
+                Ko‘rish
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">Hozircha kirimlar mavjud emas.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Yangi Kirim Qo‘shish Modal -->
+<div class="modal fade" id="addEnterModal" tabindex="-1" aria-labelledby="addEnterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{% url 'add_enter' %}" class="modal-content">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEnterModalLabel">Yangi Kirim</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="description" class="form-label">Tavsif</label>
+          <textarea name="description" id="description" class="form-control" required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+        <button type="submit" class="btn btn-primary">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

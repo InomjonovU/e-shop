@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-cout mb-4">
+    <h3>Mahsulotni tahrirlash — {{ item.product.name }}</h3>
+  </div>
+
+  <!-- Mahsulotni tahrirlash formasi -->
+  <div class="card">
+    <div class="card-header">Tahrir qilish</div>
+    <div class="card-body">
+        <form method="POST" action="{% url 'edit_out_item' out_item.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="product" class="form-label">Mahsulot</label>
+              <select name="product" id="product" class="form-select" required>
+                <option value="">Tanlang...</option>
+                {% for product in products %}
+                <option value="{{ product.id }}" {% if product.id == out_item.product.id %}selected{% endif %}>{{ product.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Soni</label>
+              <input type="number" name="quantity" id="quantity" class="form-control" value="{{ out_item.quantity }}" required min="1">
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="window.history.back()">Bekor qilish</button>
+              <button type="submit" class="btn btn-success">Saqlash</button>
+            </div>
+        </form>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -24,39 +24,71 @@ class Category(models.Model):
         return self.name
 
 class Enter(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    tpye = 'enter'
+
+    def __str__(self):
+        return self.description
 
     class Meta:
         verbose_name = 'Enter'
         verbose_name_plural = 'Enters'
         ordering = ['-created_at']
 
-    def __str__(self):
-        return f"{self.product.name} - {self.quantity}"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.product.quantity += self.quantity
-        self.product.save()
-
-class Out(models.Model):
+class EnterItem(models.Model):
+    enter = models.ForeignKey(Enter, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
-    tpye = 'out'
+
+    def __str__(self):
+        return f"{self.product.name} - {self.quantity}"
+
+    class Meta:
+        verbose_name = 'EnterItem'
+        verbose_name_plural = 'EnterItems'
+        ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        old = 0
+        if self.id:
+            old = type(self).objects.get(id=self.id).quantity
+
+        self.product.quantity += self.quantity - old
+        self.product.save()
+        super().save(*args, **kwargs)
+
+class Out(models.Model):
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.description
 
     class Meta:
         verbose_name = 'Out'
         verbose_name_plural = 'Outs'
         ordering = ['-created_at']
 
+class OutItem(models.Model):
+    out = models.ForeignKey(Out, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"{self.product.name} - {self.quantity}"
 
+    class Meta:
+        verbose_name = 'OutItem'
+        verbose_name_plural = 'OutItems'
+        ordering = ['-created_at']
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.product.quantity -= self.quantity
+        old = 0
+        if self.id:
+            old = type(self).objects.get(id=self.id).quantity
+
+        self.product.quantity -= self.quantity - old
         self.product.save()
+        super().save(*args, **kwargs)

@@ -72,14 +72,20 @@
 
               <!-- Analytics Link -->
               <li class="menu-item">
-                <a href="{% url 'movement' %}" class="menu-link">
-                  <i class="menu-icon tf-icons bx bx-line-chart"></i>
-                  <div>Kirim/Chiqim</div>
+                <a href="{% url 'enter' %}" class="menu-link">
+                  <i class='menu-icon bx bx-trending-up'></i>
+                  <div>Kirim</div>
+                </a>
+              </li>
+              <li class="menu-item">
+                <a href="{% url 'out' %}" class="menu-link">
+                  <i class='menu-icon bx bx-trending-down' ></i>
+                  <div>Chiqim</div>
                 </a>
               </li>
               <!-- Other Links -->
               <li class="menu-item">
-                <a href="{% url 'settings' %    }" class="menu-link">
+                <a href="{% url 'settings' %}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-cog"></i>
                   <div>Settings</div>
                 </a>

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
@@ -6,14 +6,11 @@ from .models import *
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 
+
 @login_required(login_url='login')
 def index(request):
     context = {'user': request.user, 'total_products': Product.objects.count(), 'total_enter': Enter.objects.count(), 'total_out': Out.objects.count()}
     return render(request, 'index.html', context=context)
-
-@login_required(login_url='login')
-def movement(request):
-    return render(request, 'movement.html')
 
 @login_required(login_url='login')
 def products(request):
@@ -89,33 +86,165 @@ def delete_product(request, product_id):
     return redirect('products')
 
 @login_required(login_url='login')
-def add_movement(request):
+def base(request):
+    return render(request, 'base.html', {'user': request.user})
+
+@login_required(login_url='login')
+def enter(request):
+    context = {'enters': Enter.objects.all(), 'categories': Category.objects.all()}
+    return render(request, 'enter.html', context=context)
+
+@login_required(login_url='login')
+def add_enter(request):
+    if request.method == 'POST':
+        description = request.POST['description']
+        Enter.objects.create(description=description)
+        return redirect('enter')
+    return render(request, 'add_enter.html')
+
+@login_required(login_url='login')
+def enter_item(request, enter_id):
+    enter = Enter.objects.get(id=enter_id)
+    enter_items = EnterItem.objects.filter(enter=enter)
+    context = {'items': enter_items, 'products': Product.objects.all(), 'enter': enter}
+    return render(request, 'enter_item.html', context=context)
+
+@login_required(login_url='login')
+def add_enter_item(request, enter_id):
+    if request.method == 'POST':
+        product_id = request.POST['product']
+        quantity = int(request.POST['quantity'])
+
+        enter = Enter.objects.get(id=enter_id)
+        product = Product.objects.get(id=product_id)
+
+        # Yaratamiz, lekin save() metodi bilan qo'shamiz
+        item = EnterItem(enter=enter, product=product, quantity=quantity)
+        item.save()  # instance save
+
+        return redirect('enter_item', enter_id=enter_id)
+
+    return redirect('enter_item', enter_id=enter_id)
+
+@login_required(login_url='login')
+def edit_enter_item(request, enter_item_id):
+    enter_item = get_object_or_404(EnterItem, id=enter_item_id)
     products = Product.objects.all()
 
     if request.method == 'POST':
-        product_id = request.POST.get('product')
-        quantity = int(request.POST.get('quantity', 0))
-        movement_type = request.POST.get('movement_type')
-        product = Product.objects.get(id=product_id)
+        enter_item.product = Product.objects.get(id=request.POST['product'])
+        enter_item.quantity = int(request.POST['quantity'])
+        enter_item.save()
+        return redirect('enter_item', enter_id=enter_item.enter.id)
 
-        if movement_type == '0':
-            if product.quantity < quantity:
-                return render(request, 'add_movement.html', {'error': 'Maxsulot yetarli emas!', 'products': products})
-            movement = Out(product=product, quantity=quantity)
-        elif movement_type == '1':
-            movement = Enter(product=product, quantity=quantity)
-        movement.save()
-        return redirect('movement')
-
-    return render(request, 'add_movement.html', {'products': products})
+    return render(request, 'edit_enter_items.html', {'enter_item': enter_item, 'products': products})
 
 @login_required(login_url='login')
-def movement_filter(request):
+def filter_enter(request):
     if request.method == 'GET':
         search = request.GET.get('search')
-        movement_type = request.GET.get('type')
-        date = request.GET.get('date')
-        product_id = request.GET.get('product_id')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
 
-def base(request):
-    return render(request, 'base.html', {'user': request.user})
+        enters = Enter.objects.all()
+        if search:
+            enters = enters.filter(description__icontains=search)
+        if start_date:
+            enters = enters.filter(created_at__gte=start_date)
+        if end_date:
+            enters = enters.filter(created_at__lte=end_date)
+
+        return render(request, 'enter.html', {'enters': enters})
+    return redirect('enter')
+
+@login_required(login_url='login')
+def filter_enter_item(request, enter_id):
+    if request.method == 'GET':
+        search = request.GET.get('search')
+
+        if search:
+            enter = Enter.objects.get(id=enter_id)
+            enter_items = EnterItem.objects.filter(enter=enter, product__name__icontains=search)
+            return render(request, 'enter_item.html', {'items': enter_items, 'enter': enter})
+
+    return redirect('enter_item', enter_id=enter_id)
+
+@login_required(login_url='login')
+def out(request):
+    context = {'outs': Out.objects.all(), 'categories': Category.objects.all()}
+    return render(request, 'out.html', context=context)
+
+@login_required(login_url='login')
+def add_out(request):
+    if request.method == 'POST':
+        description = request.POST['description']
+        Out.objects.create(description=description)
+        return redirect('out')
+    return render(request, 'add_out.html')
+
+@login_required(login_url='login')
+def out_item(request, out_id):
+    out = Out.objects.get(id=out_id)
+    out_items = OutItem.objects.filter(out=out)
+    context = {'items': out_items, 'products': Product.objects.all(), 'out': out}
+    return render(request, 'out_item.html', context=context)
+
+@login_required(login_url='login')
+def add_out_item(request, out_id):
+    if request.method == 'POST':
+        product_id = request.POST['product']
+        quantity = int(request.POST['quantity'])
+
+        out = Out.objects.get(id=out_id)
+        product = Product.objects.get(id=product_id)
+
+        # Yaratamiz, lekin save() metodi bilan qo'shamiz
+        item = OutItem(out=out, product=product, quantity=quantity)
+        item.save()  # instance save
+
+        return redirect('out_item', out_id=out_id)
+
+    return redirect('out_item', out_id=out_id)
+
+@login_required(login_url='login')
+def edit_out_item(request, out_item_id):
+    out_item = get_object_or_404(OutItem, id=out_item_id)
+    products = Product.objects.all()
+
+    if request.method == 'POST':
+        out_item.product = Product.objects.get(id=request.POST['product'])
+        out_item.quantity = int(request.POST['quantity'])
+        out_item.save()
+        return redirect('out_item', out_id=out_item.out.id)
+
+    return render(request, 'edit_out_items.html', {'out_item': out_item, 'products': products})
+
+@login_required(login_url='login')
+def filter_out(request):
+    if request.method == 'GET':
+        search = request.GET.get('search')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        outs = Out.objects.all()
+        if search:
+            outs = outs.filter(description__icontains=search)
+        if start_date:
+            outs = outs.filter(created_at__gte=start_date)
+        if end_date:
+            outs = outs.filter(created_at__lte=end_date)
+
+        return render(request, 'out.html', {'outs': outs})
+    return redirect('out')
+
+@login_required(login_url='login')
+def filter_out_item(request, out_id):
+    if request.method == 'GET':
+        search = request.GET.get('search')
+
+        if search:
+            out = Out.objects.get(id=out_id)
+            out_items = OutItem.objects.filter(out=out, product__name__icontains=search)
+            return render(request, 'out_item.html', {'items': out_items, 'out': out})
+
+    return redirect('out_item', out_id=out_id)

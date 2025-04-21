@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Kirimdagi mahsulotlar — {{ enter.description }}</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+      + Mahsulot qo‘shish
+    </button>
+  </div>
+
+  <!-- Filter -->
+  <div class="card mb-4">
+    <div class="card-header">Filter</div>
+    <div class="card-body">
+      <form method="GET" class="row g-3" action="{% url 'filter_enter_item' enter.id %}">
+        <div class="col-md-5">
+          <input type="text" name="search" class="form-control" placeholder="Mahsulot nomi orqali qidiruv..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-secondary w-100">Qidirish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mahsulotlar Jadvali -->
+  <div class="card">
+    <div class="card-header">Kiritilgan mahsulotlar</div>
+    <div class="card-body">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Mahsulot</th>
+            <th>Soni</th>
+            <th>Sana</th>
+            <th>Amallar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                <a href="{% url 'edit_enter_item' item.id %}" class="btn btn-sm btn-warning">Tahrirlash</a>
+            </td>
+          </tr>
+
+          <!-- Tahrirlash Modal -->
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">Hozircha hech qanday mahsulot kiritilmagan.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Yangi mahsulot qo‘shish -->
+<div class="modal fade" id="addItemModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="addItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{% url 'add_enter_item' enter.id %}" class="modal-content">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title" id="addItemModalLabel">Mahsulot qo‘shish</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="product" class="form-label">Mahsulot</label>
+          <select name="product" id="product" class="form-select" required>
+            <option value="">Tanlang...</option>
+            {% for product in products %}
+            <option value="{{ product.id }}">{{ product.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Soni</label>
+          <input type="number" name="quantity" id="quantity" class="form-control" required min="1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+        <button type="submit" class="btn btn-primary">Qo‘shish</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
