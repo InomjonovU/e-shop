@@ -9,7 +9,12 @@ from django.utils.dateparse import parse_date
 
 @login_required(login_url='login')
 def index(request):
-    context = {'user': request.user, 'total_products': Product.objects.count(), 'total_enter': Enter.objects.count(), 'total_out': Out.objects.count()}
+    context = {
+        'user': request.user, 
+        'total_products': Product.objects.all().count(), 
+        'total_enter': Enter.objects.all().count(), 
+        'total_out': Out.objects.all().count()
+        }
     return render(request, 'index.html', context=context)
 
 @login_required(login_url='login')
@@ -62,6 +67,8 @@ def edit_product(request, product_id):
         product.save()
         return redirect('products')
     return render(request, 'edit_product.html', {'product': product, 'categories': Category.objects.all()})
+
+
 @login_required(login_url='login')
 def filter_products(request):
     search = request.GET.get('search')
