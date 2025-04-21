@@ -221,6 +221,7 @@ def edit_out_item(request, out_item_id):
     if request.method == 'POST':
         out_item.product = Product.objects.get(id=request.POST['product'])
         out_item.quantity = int(request.POST['quantity'])
+        request.POST.getlist('quantity')
         out_item.save()
         return redirect('out_item', out_id=out_item.out.id)
 

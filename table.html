@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Form with Dynamic Table</title>
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+    button {
+      padding: 4px 8px;
+      margin: 0 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Form ichidagi dinamik jadval</h2>
+
+  <form id="myForm" onsubmit="submitForm(event)">
+    <table id="myTable">
+      <thead>
+        <tr>
+          <th>Ism</th>
+          <th>Familiya</th>
+          <th>Harakat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="text" name="ism[]" placeholder="Ism" required></td>
+          <td><input type="text" name="familiya[]" placeholder="Familiya" required></td>
+          <td>
+            <button type="button" onclick="addRow()">+</button>
+            <button type="button" onclick="removeRow(this)">-</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <button type="submit">Yuborish</button>
+  </form>
+
+  <script>
+    function addRow() {
+      const table = document.getElementById("myTable").getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+
+      newRow.innerHTML = `
+        <td><input type="text" name="ism[]" placeholder="Ism" required></td>
+        <td><input type="text" name="familiya[]" placeholder="Familiya" required></td>
+        <td>
+          <button type="button" onclick="addRow()">+</button>
+          <button type="button" onclick="removeRow(this)">-</button>
+        </td>
+      `;
+    }
+
+    function removeRow(button) {
+      const row = button.closest('tr');
+      const table = document.getElementById("myTable").getElementsByTagName('tbody')[0];
+      if (table.rows.length > 1) {
+        row.remove();
+      }
+    }
+
+    function submitForm(event) {
+      event.preventDefault();
+      const form = document.getElementById("myForm");
+      const formData = new FormData(form);
+
+      const ismlar = formData.getAll('ism[]');
+      const familiyalar = formData.getAll('familiya[]');
+
+      console.log('Yuborilgan ma\'lumotlar:');
+      for (let i = 0; i < ismlar.length; i++) {
+        console.log(`${i + 1}. ${ismlar[i]} ${familiyalar[i]}`);
+      }
+
+      // Shu yerda AJAX yoki boshqa submit logikasini yozish mumkin
+    }
+  </script>
+
+</body>
+</html>
