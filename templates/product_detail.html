@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4 class="mb-4">Mahsulot Tafsilotlari</h4>
+  <div class="card mb-4">
+    <div class="card-body row">
+      <div class="col-md-4">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+        {% else %}
+          <img src="https://png.pngtree.com/png-vector/20221125/ourmid/pngtree-no-image-available-icon-flatvector-illustration-blank-avatar-modern-vector-png-image_40962406.jpg" class="img-fluid rounded" style="width: 300px; border: 1px solid black;" alt="No image">
+        {% endif %}
+      </div>
+      <div class="col-md-8">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">Kategoriya: <strong>{{ product.category.name }}</strong></p>
+        <p class="card-text">Narxi: <strong>{{ product.price }} so'm</strong></p>
+        <p class="card-text">Tavsif: {{ product.description|default:'- Tavsif yo‘q -' }}</p>
+        <p class="card-text">Miqdori: <strong>{{ product.quantity }} ta</strong></p>
+        <a href="{% url 'products' %}" class="btn btn-secondary mt-3">Orqaga</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h5>Kirimlar</h5>
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kirim sanasi</th>
+            <th>Miqdori</th>
+            <th>Izoh</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enter in enters %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ enter.created_at|date:"d-m-Y" }}</td>
+            <td>{{ enter.quantity }}</td>
+            <td>{{ enter.enter.description }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center">Kirimlar yo‘q</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-6">
+      <h5>Chiqimlar</h5>
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Chiqim sanasi</th>
+            <th>Miqdori</th>
+            <th>Izoh</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for out in outs %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ out.created_at|date:"d-m-Y" }}</td>
+            <td>{{ out.quantity }}</td>
+            <td>{{ out.out.description }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center">Chiqimlar yo‘q</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

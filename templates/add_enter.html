@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4 class="mb-4">Yangi Kirim Qo‘shish</h4>
+
+  <form method="POST" id="enterItemsForm">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="description" class="form-label">Kirim tavsifi</label>
+      <input type="text" name="description" id="description" class="form-control" required>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Mahsulotlar</span>
+        <button type="button" class="btn btn-secondary btn-sm" id="addRow">+ Qator qo‘shish</button>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-bordered mb-0" id="itemsTable">
+          <thead>
+            <tr>
+              <th>Mahsulot</th>
+              <th>Miqdor</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <select name="product" class="form-select">
+                  {% for product in products %}
+                  <option value="{{ product.id }}">{{ product.name }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td><input type="number" name="quantity" class="form-control" required></td>
+              <td><button type="button" class="btn btn-danger btn-sm remove-row">O‘chirish</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+      <a href="{% url 'enter' %}" class="btn btn-outline-secondary">Bekor qilish</a>
+      <button type="submit" class="btn btn-primary">Saqlash</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('addRow').addEventListener('click', function() {
+    const tableBody = document.querySelector('#itemsTable tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <select name="product" class="form-select">
+          {% for product in products %}
+          <option value="{{ product.id }}">{{ product.name }}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td><input type="number" name="quantity" class="form-control" required></td>
+      <td><button type="button" class="btn btn-danger btn-sm remove-row">O‘chirish</button></td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('remove-row')) {
+      e.target.closest('tr').remove();
+    }
+  });
+</script>
+{% endblock %}

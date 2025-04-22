@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -35,6 +36,14 @@ class Enter(models.Model):
         verbose_name_plural = 'Enters'
         ordering = ['-created_at']
 
+    @property
+    def get_total_products(self):
+        items = EnterItem.objects.filter(enter=self)
+        total = 0
+        for item in items:
+            total += item.quantity
+        return total
+
 class EnterItem(models.Model):
     enter = models.ForeignKey(Enter, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -57,6 +66,10 @@ class EnterItem(models.Model):
         self.product.quantity += self.quantity - old
         self.product.save()
         super().save(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.product.quantity -= self.quantity
+        self.product.save()
+        super().delete(*args, **kwargs)
 
 class Out(models.Model):
     description = models.TextField()
@@ -69,6 +82,14 @@ class Out(models.Model):
         verbose_name = 'Out'
         verbose_name_plural = 'Outs'
         ordering = ['-created_at']
+
+    @property
+    def get_total_products(self):
+        items = OutItem.objects.filter(out=self)
+        total = 0
+        for item in items:
+            total += item.quantity
+        return total
 
 class OutItem(models.Model):
     out = models.ForeignKey(Out, on_delete=models.CASCADE)
@@ -92,3 +113,16 @@ class OutItem(models.Model):
         self.product.quantity -= self.quantity - old
         self.product.save()
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.product.quantity += self.quantity
+        self.product.save()
+        super().delete(*args, **kwargs)
+
+class Customers(models.Model):
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

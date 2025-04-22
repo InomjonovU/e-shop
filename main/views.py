@@ -18,6 +18,19 @@ def products(request):
 
 @login_required(login_url='login')
 def settings(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        user = User.objects.get(id=request.user.id)
+        user.username = username
+        user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        return redirect('index')
+
     return render(request, 'settings.html')
 
 def login(request):
@@ -95,36 +108,14 @@ def enter(request):
     return render(request, 'enter.html', context=context)
 
 @login_required(login_url='login')
-def add_enter(request):
-    if request.method == 'POST':
-        description = request.POST['description']
-        Enter.objects.create(description=description)
-        return redirect('enter')
-    return render(request, 'add_enter.html')
-
-@login_required(login_url='login')
 def enter_item(request, enter_id):
     enter = Enter.objects.get(id=enter_id)
     enter_items = EnterItem.objects.filter(enter=enter)
-    context = {'items': enter_items, 'products': Product.objects.all(), 'enter': enter}
+    total_price = 0
+    for item in enter_items:
+        total_price += item.product.price * item.quantity
+    context = {'items': enter_items, 'products': Product.objects.all(), 'enter': enter, 'total_price': total_price}
     return render(request, 'enter_item.html', context=context)
-
-@login_required(login_url='login')
-def add_enter_item(request, enter_id):
-    if request.method == 'POST':
-        product_id = request.POST['product']
-        quantity = int(request.POST['quantity'])
-
-        enter = Enter.objects.get(id=enter_id)
-        product = Product.objects.get(id=product_id)
-
-        # Yaratamiz, lekin save() metodi bilan qo'shamiz
-        item = EnterItem(enter=enter, product=product, quantity=quantity)
-        item.save()  # instance save
-
-        return redirect('enter_item', enter_id=enter_id)
-
-    return redirect('enter_item', enter_id=enter_id)
 
 @login_required(login_url='login')
 def edit_enter_item(request, enter_item_id):
@@ -175,49 +166,14 @@ def out(request):
     return render(request, 'out.html', context=context)
 
 @login_required(login_url='login')
-def add_out(request):
-    if request.method == 'POST':
-        description = request.POST['description']
-        Out.objects.create(description=description)
-        return redirect('out')
-    return render(request, 'add_out.html')
-
-@login_required(login_url='login')
 def out_item(request, out_id):
     out = Out.objects.get(id=out_id)
     out_items = OutItem.objects.filter(out=out)
-    context = {'items': out_items, 'products': Product.objects.all(), 'out': out}
+    total_price = 0
+    for item in out_items:
+        total_price += item.product.price * item.quantity
+    context = {'items': out_items, 'products': Product.objects.all(), 'out': out, 'total_price': total_price}
     return render(request, 'out_item.html', context=context)
-
-@login_required(login_url='login')
-def add_out_item(request, out_id):
-    if request.method == 'POST':
-        product_id = request.POST['product']
-        quantity = int(request.POST['quantity'])
-
-        out = Out.objects.get(id=out_id)
-        product = Product.objects.get(id=product_id)
-
-        # Yaratamiz, lekin save() metodi bilan qo'shamiz
-        item = OutItem(out=out, product=product, quantity=quantity)
-        item.save()  # instance save
-
-        return redirect('out_item', out_id=out_id)
-
-    return redirect('out_item', out_id=out_id)
-
-@login_required(login_url='login')
-def edit_out_item(request, out_item_id):
-    out_item = get_object_or_404(OutItem, id=out_item_id)
-    products = Product.objects.all()
-
-    if request.method == 'POST':
-        out_item.product = Product.objects.get(id=request.POST['product'])
-        out_item.quantity = int(request.POST['quantity'])
-        out_item.save()
-        return redirect('out_item', out_id=out_item.out.id)
-
-    return render(request, 'edit_out_items.html', {'out_item': out_item, 'products': products})
 
 @login_required(login_url='login')
 def filter_out(request):
@@ -248,3 +204,88 @@ def filter_out_item(request, out_id):
             return render(request, 'out_item.html', {'items': out_items, 'out': out})
 
     return redirect('out_item', out_id=out_id)
+
+@login_required(login_url='login')
+def product_detail(request, product_id):
+    product = Product.objects.get(id=product_id)
+    enters = EnterItem.objects.filter(product=product)
+    outs = OutItem.objects.filter(product=product)
+    return render(request, 'product_detail.html', {'product': product, 'enters': enters, 'outs': outs})
+
+@login_required(login_url='login')
+def add_enter(request):
+    context = {
+        'products': Product.objects.all(),
+    }
+    if request.method == 'POST':
+        description = request.POST['description']
+        enter = Enter.objects.create(description=description)
+        enter_items = request.POST.getlist('product')
+        quantities = request.POST.getlist('quantity')
+
+        for product_id, quantity in zip(enter_items, quantities):
+            EnterItem.objects.create(enter=enter, product=Product.objects.get(id=product_id), quantity=int(quantity))
+        return redirect('enter_item', enter_id=enter.id)
+    return render(request, 'add_enter.html', context=context)
+
+@login_required(login_url='login')
+def edit_enter(request, enter_id):
+    enter = get_object_or_404(Enter, id=enter_id)
+    enter_items = EnterItem.objects.filter(enter=enter)
+    products = Product.objects.all()
+
+    if request.method == 'POST':
+        enter.description = request.POST['description']
+        enter.save()
+
+        for item in enter_items:
+            item.delete()
+
+        enter_items = request.POST.getlist('product')
+        quantities = request.POST.getlist('quantity')
+
+        for product_id, quantity in zip(enter_items, quantities):
+            EnterItem.objects.create(enter=enter, product=Product.objects.get(id=product_id), quantity=int(quantity))
+
+        return redirect('enter_item', enter_id=enter.id)
+
+    return render(request, 'edit_enter.html', {'enter': enter, 'items': enter_items, 'products': products})
+
+@login_required(login_url='login')
+def add_out(request):
+    context = {'products': Product.objects.all()}
+    if request.method == 'POST':
+        out = Out.objects.create(description=request.POST['description'])
+        out_items = request.POST.getlist('product')
+        quantities = request.POST.getlist('quantity')
+
+        for product_id, quantity in zip(out_items, quantities):
+            OutItem.objects.create(out=out, product=Product.objects.get(id=product_id), quantity=int(quantity))
+        return redirect('out_item', out_id=out.id)
+    return render(request, 'add_out.html', context=context)
+
+@login_required(login_url='login')
+def edit_out(request, out_id):
+    out = get_object_or_404(Out, id=out_id)
+    out_items = OutItem.objects.filter(out=out)
+    products = Product.objects.all()
+
+    if request.method == 'POST':
+        out.description = request.POST['description']
+        out.save()
+
+        for item in out_items:
+            item.delete()
+
+        out_items = request.POST.getlist('product')
+        quantities = request.POST.getlist('quantity')
+
+        for product_id, quantity in zip(out_items, quantities):
+            OutItem.objects.create(out=out, product=Product.objects.get(id=product_id), quantity=int(quantity))
+
+        return redirect('out_item', out_id=out.id)
+    return render(request, 'edit_out.html', {'out': out, 'items': out_items, 'products': products})
+
+@login_required(login_url='login')
+def customers(request):
+    return render(request, 'customers.html')
