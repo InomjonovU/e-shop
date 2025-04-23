@@ -59,12 +59,18 @@ class EnterItem(models.Model):
         ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
-        old = 0
-        if self.id:
-            old = type(self).objects.get(id=self.id).quantity
+        # old = 0
+        # if self.id:
+        #     old = type(self).objects.get(id=self.id).quantity
 
-        self.product.quantity += self.quantity - old
+        # self.product.quantity += self.quantity - old
+        # self.product.save()
+
+        if self.id:
+            self.product.quantity -= EnterItem.objects.get(id=self.id).quantity
+        self.product.quantity += self.quantity
         self.product.save()
+
         super().save(*args, **kwargs)
     def delete(self, *args, **kwargs):
         self.product.quantity -= self.quantity

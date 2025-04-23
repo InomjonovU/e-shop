@@ -9,7 +9,12 @@ from django.utils.dateparse import parse_date
 
 @login_required(login_url='login')
 def index(request):
-    context = {'user': request.user, 'total_products': Product.objects.count(), 'total_enter': Enter.objects.count(), 'total_out': Out.objects.count()}
+    context = {
+        'user': request.user,
+        'total_products': Product.objects.all().count(),
+        'total_enter': Enter.objects.all().count(),
+        'total_out': Out.objects.all().count()
+        }
     return render(request, 'index.html', context=context)
 
 @login_required(login_url='login')
@@ -75,6 +80,8 @@ def edit_product(request, product_id):
         product.save()
         return redirect('products')
     return render(request, 'edit_product.html', {'product': product, 'categories': Category.objects.all()})
+
+
 @login_required(login_url='login')
 def filter_products(request):
     search = request.GET.get('search')
@@ -174,6 +181,38 @@ def out_item(request, out_id):
         total_price += item.product.price * item.quantity
     context = {'items': out_items, 'products': Product.objects.all(), 'out': out, 'total_price': total_price}
     return render(request, 'out_item.html', context=context)
+
+@login_required(login_url='login')
+
+def add_out_item(request, out_id):
+    if request.method == 'POST':
+        product_id = request.POST['product']
+        quantity = int(request.POST['quantity'])
+
+        out = Out.objects.get(id=out_id)
+        product = Product.objects.get(id=product_id)
+
+        # Yaratamiz, lekin save() metodi bilan qo'shamiz
+        item = OutItem(out=out, product=product, quantity=quantity)
+        item.save()  # instance save
+
+        return redirect('out_item', out_id=out_id)
+
+    return redirect('out_item', out_id=out_id)
+
+@login_required(login_url='login')
+def edit_out_item(request, out_item_id):
+    out_item = get_object_or_404(OutItem, id=out_item_id)
+    products = Product.objects.all()
+
+    if request.method == 'POST':
+        out_item.product = Product.objects.get(id=request.POST['product'])
+        out_item.quantity = int(request.POST['quantity'])
+        request.POST.getlist('quantity')
+        out_item.save()
+        return redirect('out_item', out_id=out_item.out.id)
+
+    return render(request, 'edit_out_items.html', {'out_item': out_item, 'products': products})
 
 @login_required(login_url='login')
 def filter_out(request):
