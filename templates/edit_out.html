@@ -8,6 +8,11 @@
     <div class="mb-3">
       <label for="description" class="form-label">Chiqim tavsifi</label>
       <input type="text" name="description" id="description" class="form-control" value="{{ out.description }}" required>
+      <select name="deliver" id="" class="form-select mt-2">
+        {% for deliver in delivers %}
+        <option value="{{ deliver.id }}">{{ deliver.name }}</option>
+        {% endfor %}
+      </select>
     </div>
 
     <div class="card">

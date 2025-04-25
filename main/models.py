@@ -27,6 +27,7 @@ class Category(models.Model):
 class Enter(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    deliver = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.description
@@ -80,6 +81,7 @@ class EnterItem(models.Model):
 class Out(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    customer = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.description
@@ -125,10 +127,19 @@ class OutItem(models.Model):
         self.product.save()
         super().delete(*args, **kwargs)
 
-class Customers(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+class CustomUser(AbstractUser):
+    user_type = models.CharField(max_length=50,
+        default='user',
+        choices=[
+            ('user', 'User'),
+            ('deliver', 'Deliver'),
+            ('customer', 'Customer')
+        ])
 
     def __str__(self):
-        return self.name
+        return self.username
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+        ordering = ['-id']

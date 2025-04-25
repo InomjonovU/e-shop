@@ -8,6 +8,12 @@
     <div class="mb-3">
       <label for="description" class="form-label">Tavsif</label>
       <input type="text" name="description" id="description" class="form-control" value="{{ enter.description }}" required>
+      <select name="customer" id="" class="form-select mt-2">
+
+        {% for customer in customers %}
+        <option value="{{ customer.id }}">{{ customer.name }}</option>
+        {% endfor %}
+      </select>
     </div>
 
     <div class="card">
