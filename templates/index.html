@@ -51,7 +51,7 @@
     <div class="col-12">
       <div>
         <canvas id="myChart"></canvas>
-      </div>      
+      </div>
     </div>
 
   </div>
@@ -60,7 +60,7 @@
 {% block js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctx = document.getElementById('myChart'); 
+  const ctx = document.getElementById('myChart');
   const datas = JSON.parse('{{ datas|safe }}');
   const footer = JSON.parse('{{ footer|safe }}');
   new Chart(ctx, {

@@ -11,7 +11,7 @@
       <select name="customer" id="" class="form-select mt-2">
         <option value="" disabled selected>Tanlang</option>
         {% for customer in customers %}
-        <option value="{{ customer.id }}">{{ customer.name }}</option>
+        <option value="{{ customer.id }}">{{ customer.username }}</option>
         {% endfor %}
       </select>
     </div>

@@ -11,7 +11,7 @@
       <select name="deliver" id="" class="form-select mt-2">
         <option value="" disabled selected>Tanlang</option>
         {% for deliver in delivers %}
-        <option value="{{ deliver.id }}">{{ deliver.name }}</option>
+        <option value="{{ deliver.id }}">{{ deliver.username }}</option>
         {% endfor %}
       </select>
     </div>

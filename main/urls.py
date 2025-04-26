@@ -25,4 +25,7 @@ urlpatterns = [
     path('out/filter/', views.filter_out, name='filter_out'),
     path('out/<int:out_id>/edit/', views.edit_out, name='edit_out'),
     path('customers/', views.customers, name='customers'),
+    path('delivers/', views.delivers, name='delivers'),
+    path('register/', views.register, name='register'),
+    path('users/delete/<int:user_id>/', views.delete_user, name='delete_user'),
 ]

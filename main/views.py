@@ -45,6 +45,8 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
+        if user and user.user_type != 'user':
+            return render(request, 'waiting.html')
         if user:
             auth_login(request, user)
             return render(request, 'index.html', {'user': user})
@@ -296,9 +298,10 @@ def edit_enter(request, enter_id):
 
 @login_required(login_url='login')
 def add_out(request):
-    context = {'products': Product.objects.all()}
+    context = {'products': Product.objects.all(), 'customers': CustomUser.objects.filter(user_type='customer')}
+    customer = CustomUser.objects.get(id=int(request.POST['customer']))
     if request.method == 'POST':
-        out = Out.objects.create(description=request.POST['description'], customer = request.POST['customer'])
+        out = Out.objects.create(description=request.POST['description'], customer = customer)
         out_items = request.POST.getlist('product')
         quantities = request.POST.getlist('quantity')
 
@@ -331,4 +334,29 @@ def edit_out(request, out_id):
 
 @login_required(login_url='login')
 def customers(request):
-    return render(request, 'customers.html')
+    context = {'customers': CustomUser.objects.filter(user_type='customer')}
+    return render(request, 'customers.html', context=context)
+
+@login_required(login_url='login')
+def delivers(request):
+    context = {'delivers': CustomUser.objects.filter(user_type='deliver')}
+    return render(request, 'delivers.html', context=context)
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        user_type = request.POST['user_type']
+        user = CustomUser.objects.create_user(username=username, email=email, password=password, user_type=user_type)
+        user.save()
+        if user_type != 'user':
+            return render(request, 'waiting.html')
+        return redirect('index')
+    return render(request, 'register.html')
+
+@login_required(login_url='login')
+def delete_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    user.delete()
+    return redirect('index')

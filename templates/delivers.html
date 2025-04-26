@@ -5,7 +5,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h5>Mijozlar Jadvali</h5>
+      <h5>Yetkazib beruvchilar Jadvali</h5>
     </div>
     <div class="card-body">
       <table class="table table-bordered">
@@ -19,14 +19,14 @@
           </tr>
         </thead>
         <tbody>
-          {% for customer in customers %}
+          {% for deliver in delivers %}
           <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ customer.username }}</td>
-            <td>{{ customer.email }}</td>
-            <td>{{ customer.phone_number }}</td>
+            <td>{{ deliver.username }}</td>
+            <td>{{ deliver.email }}</td>
+            <td>{{ deliver.phone_number }}</td>
             <td>
-              <a href="{% url 'delete_user' customer.id %}" class="btn btn-danger btn-sm">O'chirish</a>
+              <a href="{% url 'delete_user' deliver.id %}" class="btn btn-danger btn-sm">O'chirish</a>
             </td>
           </tr>
           {% empty %}
