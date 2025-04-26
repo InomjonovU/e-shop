@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.db.models import Q
 from django.utils.dateparse import parse_date
-
+import json
 
 @login_required(login_url='login')
 def index(request):
@@ -13,7 +13,9 @@ def index(request):
         'user': request.user,
         'total_products': Product.objects.all().count(),
         'total_enter': Enter.objects.all().count(),
-        'total_out': Out.objects.all().count()
+        'total_out': Out.objects.all().count(),
+        'datas':json.dumps([1,2,3,3,2,1]),
+        'footer':json.dumps(['a', 'b', 'c', 'd', 'e', 'foot'])
         }
     return render(request, 'index.html', context=context)
 

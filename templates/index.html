@@ -48,7 +48,38 @@
         </div>
       </div>
     </div>
+    <div class="col-12">
+      <div>
+        <canvas id="myChart"></canvas>
+      </div>      
+    </div>
 
   </div>
 
+{% endblock %}
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('myChart'); 
+  const datas = JSON.parse('{{ datas|safe }}');
+  const footer = JSON.parse('{{ footer|safe }}');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: footer,
+      datasets: [{
+        label: '# Maxsulotlar qoldig`i',
+        data: datas,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
 {% endblock %}
