@@ -9,13 +9,15 @@ import json
 
 @login_required(login_url='login')
 def index(request):
+    labels = [item.name for item in Product.objects.all()]
+    values = [int(item.quantity * item.price) for item in Product.objects.all()]
     context = {
         'user': request.user,
         'total_products': Product.objects.all().count(),
         'total_enter': Enter.objects.all().count(),
         'total_out': Out.objects.all().count(),
-        'datas':json.dumps([1,2,3,3,2,1]),
-        'footer':json.dumps(['a', 'b', 'c', 'd', 'e', 'foot'])
+        'datas':json.dumps(values),
+        'footer':json.dumps(labels)
         }
     return render(request, 'index.html', context=context)
 

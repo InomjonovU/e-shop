@@ -48,35 +48,56 @@
         </div>
       </div>
     </div>
-    <div class="col-12">
-      <div>
-        <canvas id="myChart"></canvas>
+
+    <!-- Aylana diagramma -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-center mb-3">Mahsulotlar soni va foizda taqsimoti</h6>
+          <canvas id="myChart" width="400" height="400"></canvas>
+        </div>
       </div>
     </div>
 
-  </div>
-
+</div>
 {% endblock %}
+
 {% block js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctx = document.getElementById('myChart');
   const datas = JSON.parse('{{ datas|safe }}');
-  const footer = JSON.parse('{{ footer|safe }}');
+  const labels = JSON.parse('{{ footer|safe }}');
+
   new Chart(ctx, {
-    type: 'bar',
+    type: 'doughnut',
     data: {
-      labels: footer,
+      labels: labels,
       datasets: [{
-        label: '# Maxsulotlar qoldig`i',
+        label: 'Mahsulotlar soni',
         data: datas,
+        backgroundColor: [
+          '#0d6efd', '#198754', '#dc3545', '#ffc107', '#6610f2', '#20c997',
+          '#6c757d', '#fd7e14', '#0dcaf0', '#e83e8c'
+        ],
         borderWidth: 1
       }]
     },
     options: {
-      scales: {
-        y: {
-          beginAtZero: true
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const value = context.parsed;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${context.label}: ${value}$ (${percentage}%)`;
+            }
+          }
         }
       }
     }
